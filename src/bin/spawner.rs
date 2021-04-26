@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use lunatic::{channel::unbounded, Process};
 
 const COUNT: usize = 100_000;
@@ -18,6 +20,11 @@ fn main() {
         Process::spawn_with((vec![1, 2, 3], tx_response.clone()), |(numbers, tx)| {
             let sum = numbers.into_iter().sum();
             tx.send(sum).unwrap();
+
+            eprintln!("pre locking");
+            let out = std::io::stdout();
+            let mut lock = out.lock();
+            lock.write_all(b"hello there").unwrap();
         })
         .detach();
     }
